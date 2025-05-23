@@ -1,2 +1,9 @@
 public/build
 node_modules
+
+# AI coding stuff
+.specstory
+.aider*
+.claude*
+.cursor*
+.windsurf*
