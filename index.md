@@ -52,8 +52,8 @@ The ONC Health IT Certification Program must ensure certified Health IT systems 
 
 **Rationale & Specifics:**
 To enable scalable population health, research, and system transition use cases:
-1.  **Essential Parameter Support:** Mandate support for critical FHIR Bulk Data parameters, including `_since` for incremental updates and `_typeFilter` (or equivalent mechanisms) for granular data scoping of exported resources. Certification must validate correct implementation.
-2.  **Basic Group Management:** Require EHR systems to support standardized API-based creation, modification, and deletion of FHIR Group resources for use in Bulk FHIR exports, without arbitrary group size limitations. Signal intent to adopt community-developed standards (e.g., Argonaut work on FHIR Group API for Bulk Data Access IG) via SVAP for more advanced group management capabilities.
+1.  **Essential Parameter Support:** Mandate support for critical FHIR Bulk Data parameters, including `_since` for incremental updates and `_typeFilter` (or equivalent mechanisms) for granular data scoping of exported resources. Certification must validate correct implementation. Incremental updates enable systems to use efficient bulk exports that only contain required data and can be processed rapidly. In contrast to notifications when there are changes, incremental export requests represent a simpler approach to integration, support export of historical data, and do not require both the data provider system and the data consumer system to be continuously online. 
+2.  **Basic Group Management:** Require EHR systems to support standardized API-based creation, modification, and deletion of FHIR Group resources for use in Bulk FHIR exports, without arbitrary group size limitations. Signal intent to adopt community-developed standards via SVAP for more advanced group management capabilities. Group APIs for both roster based groups (e.g., the DaVinci Member Attribution List Implementation Guide) and characteristic based groups (e.g., Argonaut work on FHIR Group API for Bulk Data Access IG) are needed to fully realize the potential of the Bulk Data API.
 
 ### Ensure Foundational Design and Performance for Bulk Data API | `req_ensure_bulk_api_performance_parity`
 **Recommendation:**
@@ -64,10 +64,11 @@ To ensure the regulated Bulk FHIR API is a viable and primary mechanism for popu
 1.  **Performance Parity:** The speed, efficiency, scalability, timeliness, and customization capabilities of the regulated FHIR Bulk Data export operation for USCDI data must be comparable to that of any non-FHIR, proprietary bulk export formats or methods (e.g., CSV exports from a data warehouse) offered by the same Health IT Module when exporting similar volumes of data for comparable patient cohorts. This is not directly certifiable in pre-market testing but should be an explicit expectation and potentially monitored through post-market surveillance or programs like the EHR Reporting Program.
 2.  **Designed for Population Scale:** Health IT developers must attest that their FHIR Bulk Data API implementation is architected for efficient operation at population scale (e.g., leveraging appropriate database indexing, asynchronous processing, and scalable infrastructure), rather than being a simple iteration over single-patient APIs.
 
-### Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications | `req_api_ehi_export_argonuat`
+### Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications | `req_api_ehi_export_argonaut`
 
 **Recommendation:**
-Certified Health IT must provide a robust, functional, and *computable* "Electronic Health Information" (EHI) Export for single patients. This EHI export *must* be available via a standardized API, aligning with or providing functionality equivalent to the Argonaut Project's EHI Export API Implementation Guide, to allow for automated retrieval by patient-authorized applications. This serves as a comprehensive backstop for any information not available through USCDI FHIR APIs and must include structured and unstructured data, along with necessary vendor documentation for interpretation.
+1. Certified Health IT must provide a robust, functional, and *computable* "Electronic Health Information" (EHI) Export for single patients. This EHI export *must* be available via a standardized API, aligning with or providing functionality equivalent to the Argonaut Project's EHI Export API Implementation Guide, to allow for automated retrieval by patient-authorized applications. This serves as a comprehensive backstop for any information not available through USCDI FHIR APIs and must include structured and unstructured data, along with necessary vendor documentation for interpretation.
+2. In addition to providing access to a computable EHI export through the API, systems *must* also offer patients an API endpoint to export the full HIPAA designated record set in a human readable form. 
 
 **Rationale & Specifics:**
 A complete, computable, and API-accessible export of all EHI is a cornerstone of patient data access rights and enables numerous use cases, from personal health record aggregation to data migration and advanced analytics by patient-chosen tools.
@@ -80,6 +81,7 @@ A complete, computable, and API-accessible export of all EHI is a cornerstone of
     *   CORS support must be enabled to ensure web-based applications can fully utilize the API and access necessary headers.
 2.  **Completeness:** The export must include *all* EHI as defined by ONC, encompassing both standardized (e.g., USCDI) and non-standardized data, including clinical notes, images (or references to them if not directly included), and other relevant information.
 3.  **Computability:** Data should be provided in machine-readable formats. While vendor-specific formats are permissible within the EHI export (as anticipated by the Argonaut IG through DocumentReferences), they must be accompanied by the aforementioned vendor documentation to enable programmatic interpretation by recipient applications. FHIR NDJSON should be used for data that can be represented in FHIR.
+   **Human Readability:** Data should also be provided through the API in human-readable format so patients can use an app to request and share their complete record from multiple sites with providers, researchers, and AI agents without needing to learn each site's process for submitting and tracking a record request.
 4.  **Usability and Patient Interaction:**
     *   As described in the Argonaut EHI Export API IG, if the EHI Server supports returning a subset of EHI or requires additional user interaction (e.g., for filtering by date ranges or data types), it should support the `Link` header with `rel="patient-interaction"` to direct the user to a page for specifying these options.
     *   The process should accommodate workflows that may involve manual steps (e.g., HIM staff review), returning appropriate in-progress status responses until the data is ready for retrieval.
@@ -108,7 +110,28 @@ Patients have a right to access their EHI without undue burden. Current manual r
 6.  **Cost-Free to Patient:** Initiating and receiving EHI through this mandated self-service electronic mechanism must be free of charge to the patient.
 7.  **Certification:** Certification testing must verify the presence, functionality, and discoverability of this self-service electronic EHI request capability, including the ability to submit a request, track status, and receive notifications entirely through electronic means.
 
-This requirement ensures a baseline level of patient empowerment and efficiency in accessing EHI, serving as an essential complement to, or foundational step towards, more advanced API-based EHI export solutions.
+
+### Mandate Patient-Initiated Secure Messaging via Standardized APIs | `req_patient_app_messaging_argonaut`
+**Recommendation:**
+Certified Health IT must support secure, patient-initiated messaging to healthcare providers from third-party applications, utilizing standardized APIs. Signal intent to adopt community-developed standards such as the Argonaut Project's Provider/Patient Secure Messaging API Implementation Guide (https://hackmd.io/@argonaut/H1dQ95xG3) via SVAP.
+
+**Rationale & Specifics:**
+To improve patient engagement and streamline communication within the healthcare system:
+1.  **Patient Convenience and Engagement:** Enables patients to communicate with their care teams directly from applications they are already using to manage their health, improving navigation of the healthcare system, reducing communication friction, and fostering continuous engagement.
+2.  **Contextual Communication:** Facilitates more effective communication by allowing patients to, for example, select specific data within an app (e.g., a portion of a clinical note they are viewing, a concerning lab result, a self-tracked observation) and easily include it as context within their secure message to the provider.
+3.  **Standardized Approach:** Adherence to community-developed standards like the Argonaut messaging API (which leverages FHIR Communication) ensures interoperability and provides a consistent, predictable interface for app developers. This includes:
+    *   Discoverable messaging endpoints.
+    *   Standardized FHIR resources for message construction and exchange.
+    *   Alignment with existing security and authorization frameworks like SMART App Launch.
+    *   Clear expectations for message payloads, including text and potentially references or attachments.
+4.  **EHR Workflow Integration:** Certified Health IT must be capable of integrating these incoming patient-initiated messages into existing provider communication workflows (e.g., EHR in-basket, designated messaging queues) to ensure they are reviewed and responded to in a timely and appropriate manner by the care team.
+5.  **Use Case Example:** A patient is reviewing a recently released clinical note in their preferred patient-facing application. They identify a section containing medical jargon they don't understand or have a question about their medication dosage. The application, using the standardized API, allows them to highlight this specific text snippet and send a secure message, with the selected text automatically included as context, directly to their provider's EHR system.
+6.  **Certification:** ONC certification testing should verify the EHR's capability to:
+    *   Expose the necessary API endpoints for receiving patient-initiated messages.
+    *   Correctly process and route messages according to the Argonaut (or similar ONC-specified) messaging IG.
+    *   Handle contextual data included with messages.
+    *   Ensure messages are appropriately presented to providers within their standard workflows.
+    *   Confirm adherence to security and authorization requirements.
 
 ### Mandate Electronic Pathways for Patient Record Amendment Requests | `req_patient_amendment_pathways`
 
@@ -116,7 +139,7 @@ This requirement ensures a baseline level of patient empowerment and efficiency 
 Certified Health IT must provide clear, secure, and entirely electronic pathways for individuals to request amendments to their medical records, track the status of these requests, and receive responses, thereby making HIPAA-granted rights more accessible and usable. These pathways must be available through patient-facing interfaces (e.g., patient portals) and programmatically via APIs for patient-authorized applications.
 
 **Rationale & Specifics:**
-Making the HIPAA right to request record amendments electronically functional is crucial for data accuracy, patient trust, and engagement. Current manual processes are often burdensome.
+Making the HIPAA right to request record amendments electronically functional is crucial for data accuracy, patient trust, and engagement. Current manual processes are often burdensome. This could be combined with the approach for "Mandate Patient-Initiated Secure Messaging via Standardized APIs". 
 
 1.  **Electronic Submission:** Patients must be able to identify information they believe is incorrect and electronically submit an amendment request with their reasoning, via patient portals and APIs for authorized apps.
 2.  **Status Tracking & Response:** The system must provide electronic confirmation of receipt, allow patients to track the request status, and deliver the provider's electronic response (acceptance or denial).
@@ -239,20 +262,37 @@ To fully empower individuals, foster grassroots innovation, and ensure patients 
 ### Mandate a Trustworthy and Accountable Architecture for All TEFCA Individual Access Services (IAS) | `req_tefca_trustworthy_ias_architecture`
 
 **Recommendation:**
-The TEFCA Common Agreement and QTF must mandate a high-assurance security and authorization architecture for all Individual Access Services (whether commercial IAS providers or services facilitating the Patient-Developer Credential). This architecture must ensure that applications accessing data on behalf of an individual do so based on explicit, verifiable individual consent, mediated by a narrow set of trusted identity and authorization service providers, with strong cryptographic binding between identity and authorization.
+The TEFCA Common Agreement and QTF must mandate a high-assurance security and authorization architecture for all Individual Access Services (whether commercial IAS providers or services facilitating the Patient-Developer Credential). This architecture must ensure that applications accessing data on behalf of an individual do so based on explicit, verifiable individual consent, mediated by a narrow set of trusted identity and authorization service providers, with verifiable binding between identity and authorization.
 
 **Rationale & Specifics:**
 Protecting patient data shared via any individual access pathway within TEFCA requires a robust, standardized architecture that clearly separates roles and ensures accountability. This model prevents applications from self-attesting permissions and helps limit the potential impact of a compromised application.
 
-1.  **Federated Trust with Approved Identity Providers (IdPs) for All IAS:** All Individual Access Service pathways, including those used by commercial providers and those facilitating the Patient-Developer Credential, must rely on a defined, limited set of federally recognized or TEFCA-approved, high-assurance Identity Providers (IdPs) for initial individual identity verification. This establishes a "narrow waist" for trusted identity proofing.
-2.  **Explicit, Verifiable Individual Authorization Mediated by Trusted Services:** The act of an individual authorizing an application to access their data must be a distinct, explicit step mediated by a trusted authorization service that leverages the verified identity from an approved IdP. The resulting authorization artifact (e.g., a SMART on FHIR authorization code exchanged for an access token, a FHIR Consent resource, or other digitally signed permission) must be cryptographically bound to the verified individual identity and the specific application being authorized, ensuring non-repudiation and that permissions are granted by the legitimate data subject to a specific recipient for defined purposes.
-3.  **Scoped Access Based on Authorization:** Applications, upon presenting a valid, identity-bound authorization token or artifact, are granted access only to the data permitted by that specific authorization. This principle, combined with fine-grained consent capabilities, helps limit the "blast radius" of any single compromised application or token.
-4.  **Support for Diverse IAS Provider Models, Including Non-Reciprocal Patient-Controlled Storage:** 
-    *   The TEFCA framework must explicitly acknowledge and support IAS providers that function solely as agents for patient-directed data retrieval and local/personal storage (e.g., on a patient's device or personal cloud).
-    *   Such "patient-controlled storage" IAS providers, when authorized by an individual to retrieve data on their behalf, should not be mandated to become queryable TEFCA network nodes themselves or to make the retrieved data available for reciprocal sharing via TEFCA. Their role is to facilitate the patient's right to access and personally hold their data, respecting a patient's choice to keep that consolidated data private and outside of further network exchange, unless explicitly re-authorized by the patient for a different purpose.
-5.  **Facilitation of Individual Data Retrieval within this Architecture:** Within this trustworthy and flexible framework, QHINs must provide or ensure individuals have access to functionalities enabling them to:
-    *   Discover which TEFCA participants are likely to hold their records (Record Locator Service - RLS), via user-friendly interfaces (website and API).
-    *   Initiate cost-free queries for their *own* USCDI data (and eventually their full Electronic Health Information) from all participating data holders via TEFCA.
+#### 1. **Federated Trust with Approved Identity Providers (IdPs) for All IAS:** 
+All Individual Access Service pathways, including those used by commercial providers and those facilitating the Patient-Developer Credential, must rely on a defined, limited set of federally recognized or TEFCA-approved, high-assurance Identity Providers (IdPs) for initial individual identity verification. This establishes a "narrow waist" for trusted identity proofing.
+
+#### 2. **Explicit, Verifiable Individual Authorization Mediated by Trusted Services:** 
+The act of an individual authorizing an application to access their data must be a distinct, explicit step mediated by a trusted authorization service that leverages the verified identity from an approved IdP. The resulting authorization artifact (e.g., a SMART on FHIR authorization code exchanged for an access token, a FHIR Consent resource, or other digitally signed permission) must be cryptographically bound to the verified individual identity and the specific application being authorized, ensuring non-repudiation and that permissions are granted by the legitimate data subject to a specific recipient for defined purposes.
+
+**Critical Architecture Constraints:**
+- **Applications CANNOT create identity credentials or authorization credentials** - they may only consume credentials issued by trusted services
+- **Narrow waist enforcement**: Only the limited set of approved IdPs and authorization services may issue their respective credential types
+- **Verifiability**: Relying parties (QHINs, EHRs) must be able to cryptographically verify that both identity and authorization credentials were issued by approved trusted services
+- **Security properties of binding must ensure**:
+  - Non-transferability: Authorization cannot be used by a different identity
+  - Non-forgeability: Applications cannot modify or create credentials
+  - Accountability: All credential issuance is auditable to specific trusted entities
+
+#### 3. **Scoped Access Based on Authorization:** 
+Applications, upon presenting a valid, identity-bound authorization credential, are granted access only to the data permitted by that specific authorization. This principle, combined with fine-grained consent capabilities, helps limit the "blast radius" of any single compromised application or token.
+
+#### 4. **Support for Diverse IAS Provider Models, Including Non-Reciprocal Patient-Controlled Storage:** 
+- The TEFCA framework must explicitly acknowledge and support IAS providers that function solely as agents for patient-directed data retrieval and local/personal storage (e.g., on a patient's device or personal cloud).
+- Such "patient-controlled storage" IAS providers, when authorized by an individual to retrieve data on their behalf, should not be mandated to become queryable TEFCA network nodes themselves or to make the retrieved data available for reciprocal sharing via TEFCA. Their role is to facilitate the patient's right to access and personally hold their data, respecting a patient's choice to keep that consolidated data private and outside of further network exchange, unless explicitly re-authorized by the patient for a different purpose.
+
+#### 5. **Facilitation of Individual Data Retrieval within this Architecture:** 
+Within this trustworthy and flexible framework, QHINs must provide or ensure individuals have access to functionalities enabling them to:
+- Discover which TEFCA participants are likely to hold their records (Record Locator Service - RLS), via user-friendly interfaces (website and API).
+- Initiate cost-free queries for their *own* USCDI data (and eventually their full Electronic Health Information) from all participating data holders via TEFCA.
 
 ### Establish Public Foundational Infrastructure for Nationwide Discovery | `req_public_discovery_infrastructure`
 **Recommendation:** ONC should lead or actively support the establishment, maintenance, and governance of publicly available, free, and machine-readable national directory services crucial for enabling nationwide health information exchange and interoperability.
@@ -286,7 +326,7 @@ Achieving comprehensive access is fundamental and is directly supported by sever
 *   [Comprehensive and Performant Data Access](#principle_comprehensive_performant_data_access): Access must be to complete Electronic Health Information (EHI), not just a limited subset.
 
 #### Key Recommendations for enabling comprehensive access:
-*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat): This is crucial for patients to obtain *all* their EHI via API, including notes and images, enabling truly comprehensive personal health records.
+*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut): This is crucial for patients to obtain *all* their EHI via API, including notes and images, enabling truly comprehensive personal health records.
 *   [Mandate Self-Service Electronic EHI Request Functionality in Certified Health IT](#req_self_service_ehi_request): Provides a baseline electronic, self-service method for patients to request their full EHI.
 *   [Ensure Programmatic and Automated Access to Medical Images](#req_programmatic_image_access): Addresses the common unavailability of diagnostic images via patient-facing APIs.
 *   [Steward USCDI Development for Pragmatic Interoperability](#req_steward_uscdi_development): Ensures an expanding common data foundation of standardized elements.
@@ -303,13 +343,14 @@ CMS's primary role should be to ensure foundational data access and protect pati
 *   [Fostering Competition Through Open and Fair Market Foundations](#principle_market_competition_foundations): Focus on enabling access, not picking winners.
 
 #### Recommendations to encourage interest and adoption by ensuring robust and trustworthy data access and functionality:
-*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat)
+*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut)
 *   [Keep Single-Patient API Certification Current with SMART App Launch & Backend Services Specifications](#req_update_smart_app_launch_cert)
 *   [Ensure Programmatic and Automated Access to Medical Images](#req_programmatic_image_access)
 *   [Establish a "TEFCA Patient-Developer Credential" for Comprehensive, Direct Data Access](#req_tefca_patient_developer_credential): This enables individual innovation by lowering access barriers.
 *   [Empower Individuals with Transparency and Control Over TEFCA Data Sharing](#req_tefca_individual_transparency_control): Builds trust necessary for engagement.
 *   [Ensure Patient Access to Remote, High-Assurance Portal Account Provisioning](#req_coordinated_remote_provisioning_access): Simplifies foundational access.
 *   [Mandate Electronic Pathways for Patient Record Amendment Requests](#req_patient_amendment_pathways): Allowing patients to easily request corrections to their data via portals and apps makes digital tools more empowering and essential.
+*   [Mandate Patient-Initiated Secure Messaging via Standardized APIs](#req_patient_app_messaging_argonaut): Enabling patients to communicate with providers directly from their chosen apps, potentially with relevant data context, greatly increases the utility and stickiness of digital health products.
 
 CMS should avoid becoming an app "approver" for general health tools, which could stifle innovation. Focus on open, secure, comprehensive data pipes and core functionalities, allowing the market and patients to determine value.
 ### PC-8. In your experience, what health data is readily available and valuable to patients or their caregivers or both?
@@ -324,7 +365,7 @@ While basic structured data (USCDI) is increasingly available, much of the riche
 *   Medicare claims data via Blue Button 2.0.
 
 #### Valuable but Hard to Access (PC-8a):
-Making the following valuable data types more accessible programmatically is crucial. Many of these challenges can be significantly addressed by two overarching recommendations: ensuring comprehensive data availability via [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat) and by expanding standardized data elements through [Steward USCDI Development for Pragmatic Interoperability](#req_steward_uscdi_development). Specific data types include:
+Making the following valuable data types more accessible programmatically is crucial. Many of these challenges can be significantly addressed by two overarching recommendations: ensuring comprehensive data availability via [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut) and by expanding standardized data elements through [Steward USCDI Development for Pragmatic Interoperability](#req_steward_uscdi_development). Specific data types include:
 
 *   **Diagnostic quality medical images:** Critical but rarely API-accessible (though imaging reports may sometimes be available, the images themselves are harder to obtain programmatically). This is primarily solved by [Ensure Programmatic and Automated Access to Medical Images](#req_programmatic_image_access), and also supported by the EHI export.
 *   **Full flowsheet data:** Comprehensive view of patient status and interventions. Addressed by EHI export and potentially USCDI expansion.
@@ -347,7 +388,7 @@ Our recommendations aim to make TEFCA truly serve individuals:
 *   [Empower Individuals with Transparency and Control Over TEFCA Data Sharing](#req_tefca_individual_transparency_control): Provide API-accessible audit logs and TEFCA-level patient controls (opt-out, "ask me first," freeze access).
 *   [Establish a "TEFCA Patient-Developer Credential" for Comprehensive, Direct Data Access](#req_tefca_patient_developer_credential): Offer a cost-free pathway for individuals to use/develop tools for their own data via QHIN APIs.
 *   [Mandate a Trustworthy and Accountable Architecture for All TEFCA Individual Access Services (IAS)](#req_tefca_trustworthy_ias_architecture): Ensure all IAS rely on high-assurance identity verification and explicit, verifiable individual consent, supporting patient-controlled storage models.
-*   **EHI as a TEFCA Data Source:** Evolve TEFCA to support exchange of full EHI, as available through systems compliant with [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat).
+*   **EHI as a TEFCA Data Source:** Evolve TEFCA to support exchange of full EHI, as available through systems compliant with [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut).
 
 #### Impactful Use Cases if Implemented Through a Reformed TEFCA (PC-10c):
 Patient-initiated aggregation of complete health records; secure sharing with new specialists; individual research with consented data.
@@ -394,7 +435,7 @@ It is critically important for *all* data in an EHR to be accessible for exchang
 Missing data negatively impacts patient safety, care coordination, diagnostic accuracy, and efficiency.
 
 #### Key Recommendations for Addressing Challenges (PR-3a, PR-3c):
-*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat): This is the core solution, ensuring the EHI export includes *all* EHI (structured, notes, scans, etc.) via API with documentation for computability, overcoming current format-based access barriers.
+*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut): This is the core solution, ensuring the EHI export includes *all* EHI (structured, notes, scans, etc.) via API with documentation for computability, overcoming current format-based access barriers.
 *   Technical barriers are less about format and more about lack of certified capabilities to package and expose all data via APIs, which this recommendation addresses.
 
 ---
@@ -414,7 +455,7 @@ Payers will find TEFCA more valuable if it evolves to prioritize individual cont
 *   **Insufficient Individual Control/Transparency:** Addressed by [Empower Individuals with Transparency and Control Over TEFCA Data Sharing](#req_tefca_individual_transparency_control) to build member trust.
 *   **Barriers to Innovation for Member-Facing Tools:** Lowered by pathways like [Establish a "TEFCA Patient-Developer Credential" for Comprehensive, Direct Data Access](#req_tefca_patient_developer_credential).
 *   **Need for Robust Identity/Authorization:** Supported by [Mandate a Trustworthy and Accountable Architecture for All TEFCA Individual Access Services (IAS)](#req_tefca_trustworthy_ias_architecture).
-*   **Limited Data Scope:** Expand beyond USCDI by enabling exchange of full EHI from systems compliant with [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat).
+*   **Limited Data Scope:** Expand beyond USCDI by enabling exchange of full EHI from systems compliant with [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut).
 *   **Lack of Public Foundational Infrastructure:** Addressed by [Establish Public Foundational Infrastructure for Nationwide Discovery](#req_public_discovery_infrastructure).
 
 These limitations hinder payer participation; a member-trusted TEFCA is more valuable to payers.
@@ -446,7 +487,7 @@ Developer interest hinges on an open, accessible, and reliable data ecosystem.
 *   [Comprehensive and Performant Data Access](#principle_comprehensive_performant_data_access)
 
 #### Short-Term Steps (Next 2 Years):
-*   Aggressively advance [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat).
+*   Aggressively advance [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut).
 *   Strengthen single-patient FHIR APIs via [Keep Single-Patient API Certification Current with SMART App Launch & Backend Services Specifications](#req_update_smart_app_launch_cert).
 *   Launch a pilot for [Establish a "TEFCA Patient-Developer Credential" for Comprehensive, Direct Data Access](#req_tefca_patient_developer_credential) to lower barriers for individual/small developers.
 *   Commit to and begin developing [Establish Public Foundational Infrastructure for Nationwide Discovery](#req_public_discovery_infrastructure).
@@ -491,7 +532,7 @@ TEFCA's *intended* unique function is nationwide querying of unknown data holder
 *   [Mandate a Trustworthy and Accountable Architecture for All TEFCA Individual Access Services (IAS)](#req_tefca_trustworthy_ias_architecture)
 
 #### Existing Alternatives (TD-6a):
-Direct EHR FHIR APIs (strengthened by [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat)); regional/state HIEs; proprietary vendor networks.
+Direct EHR FHIR APIs (strengthened by [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut)); regional/state HIEs; proprietary vendor networks.
 
 TEFCA should complement, not replace, direct patient-to-EHR API access, offering value for discovery, provided it fully embraces patient empowerment.
 
@@ -508,7 +549,7 @@ USCDI is a valuable baseline but limited in scope and granularity.
 
 #### Technology Policy Recommendations:
 *   [Steward USCDI Development for Pragmatic Interoperability](#req_steward_uscdi_development): Advocate for an improved, evidence-based expansion of USCDI.
-*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat): Serves as the crucial backstop for data beyond USCDI.
+*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut): Serves as the crucial backstop for data beyond USCDI.
 
 #### Limitations (TD-7a, TD-7b):
 Primarily scope; USCDI is intentionally a "core" set.
@@ -517,7 +558,7 @@ Primarily scope; USCDI is intentionally a "core" set.
 Yes, thoughtfully adding more elements via the process in [Steward USCDI Development for Pragmatic Interoperability](#req_steward_uscdi_development) adds value. Address scoping via iterative expansion and clear value propositions.
 
 #### Less Structured Formats and LLMs (TD-7d):
-We need **both**: expanding standardized USCDI and API access to complete EHI (including less structured data) via [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat). LLMs can process the unstructured parts of EHI, while standardized USCDI remains vital for precision tasks.
+We need **both**: expanding standardized USCDI and API access to complete EHI (including less structured data) via [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut). LLMs can process the unstructured parts of EHI, while standardized USCDI remains vital for precision tasks.
 
 ### TD-10. For EHR and other developers subject to the ONC Health IT Certification Program, what further steps should ASTP/ONC consider to implement the 21st Century Cures Act's API condition of certification (42 U.S.C. 300jj-11(c)(5)(D)(iv)) that requires a developer's APIs to allow health information to be accessed, exchanged, and used without special effort, including providing access to all data elements of a patient's electronic health record to the extent permissible under applicable privacy laws?
 
@@ -528,12 +569,13 @@ The Cures Act's vision of data being accessed, exchanged, and used "without spec
 *   [Comprehensive and Performant Data Access](#principle_comprehensive_performant_data_access)
 
 #### Primary Technology Policy Recommendation:
-*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat): This is precisely designed to fulfill the Cures Act's "all data elements... without special effort" provision by requiring API accessibility, inclusion of all EHI, and computability via vendor documentation.
+*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut): This is precisely designed to fulfill the Cures Act's "all data elements... without special effort" provision by requiring API accessibility, inclusion of all EHI, and computability via vendor documentation.
 
 #### Further Supporting Recommendations ensuring "without special effort" for access and use:
 *   [Keep Single-Patient API Certification Current with SMART App Launch & Backend Services Specifications](#req_update_smart_app_launch_cert): Ensures modern, secure, and functional single-patient API access.
 *   [Ensure Programmatic and Automated Access to Medical Images](#req_programmatic_image_access): Makes critical image data accessible without special effort.
 *   [Mandate Electronic Pathways for Patient Record Amendment Requests](#req_patient_amendment_pathways): Fulfilling the HIPAA right to request amendment "without special effort" is a crucial aspect of "using" one's health information. Current manual processes create significant burdens. Mandating certified electronic pathways (via portals and APIs) for patients to submit, track, and receive responses to amendment requests directly aligns with the Cures Act's intent to empower patients and improve data quality.
+*   [Mandate Patient-Initiated Secure Messaging via Standardized APIs](#req_patient_app_messaging_argonaut): Enabling patients to communicate with providers directly from their chosen apps, potentially with relevant data context, greatly increases the utility and stickiness of digital health products.
 
 By mandating these capabilities through the ONC Health IT Certification Program, ONC can ensure that "without special effort" becomes a practical reality for patients seeking to truly engage with and manage their complete health information.
 
@@ -548,13 +590,13 @@ Yes, the EHI export capability urgently needs revision to specify standardized A
 *   [Comprehensive and Performant Data Access](#principle_comprehensive_performant_data_access)
 
 #### Technology Policy Recommendation:
-*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat): This directly addresses how to revise the capability.
+*   [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut): This directly addresses how to revise the capability.
 
 #### Standardized API Requirements for EHI Export (TD-11a):
 *   **Yes, unequivocally.** The current non-API approach is insufficient. ONC should require alignment with or equivalence to the **Argonaut Project's EHI Export API IG**, as detailed in our recommendation.
 
 #### Workflow Aspects for Improvement (TD-11b):
-*   Patient-initiated API-driven workflow, as per [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat).
+*   Patient-initiated API-driven workflow, as per [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut).
 *   Electronic request initiation, as per [Mandate Self-Service Electronic EHI Request Functionality in Certified Health IT](#req_self_service_ehi_request).
 *   Clear API-based status tracking.
 
@@ -575,11 +617,11 @@ VBC success depends on timely, comprehensive data access, robust analytics, and 
 *   [Comprehensive and Performant Data Access](#principle_comprehensive_performant_data_access)
 
 #### Essential Health IT Capabilities Supported by Our Recommendations:
-*   **Efficient Data Extraction/Aggregation:** [Keep Bulk Data API Certification Current with FHIR Bulk Data Specifications](#req_update_bulk_data_cert), [Ensure Foundational Design and Performance for Bulk Data API](#req_ensure_bulk_api_performance_parity), and [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat).
+*   **Efficient Data Extraction/Aggregation:** [Keep Bulk Data API Certification Current with FHIR Bulk Data Specifications](#req_update_bulk_data_cert), [Ensure Foundational Design and Performance for Bulk Data API](#req_ensure_bulk_api_performance_parity), and [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut).
 *   **Timely Patient Event Notifications:** [Mandate FHIR Subscriptions for Event-Driven Workflows](#req_mandate_fhir_subscriptions).
 *   **Advanced CDS/Workflow Integration:** [Mandate CDS Hooks for Seamless Clinical Decision Support Integration](#req_mandate_cds_hooks).
 *   **Comprehensive Data for Quality Measurement:** [Steward USCDI Development for Pragmatic Interoperability](#req_steward_uscdi_development) and Bulk FHIR capabilities.
-*   **Enhanced Patient Engagement:** Patient data access through [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat) and [Keep Single-Patient API Certification Current with SMART App Launch & Backend Services Specifications](#req_update_smart_app_launch_cert).
+*   **Enhanced Patient Engagement:** Patient data access through [Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut) and [Keep Single-Patient API Certification Current with SMART App Launch & Backend Services Specifications](#req_update_smart_app_launch_cert).
 *   **Nationwide Data Discovery:** [Establish Public Foundational Infrastructure for Nationwide Discovery](#req_public_discovery_infrastructure) and a reformed TEFCA (e.g., per [Empower Individuals with Transparency and Control Over TEFCA Data Sharing](#req_tefca_individual_transparency_control)).
 
 ### VB-15. How could a nationwide provider directory of FHIR endpoints help improve access to patient data and understanding of claims data sources? What key data elements would be necessary in a nationwide FHIR endpoints directory to maximize its effectiveness?
@@ -604,7 +646,7 @@ FHIR API base URLs, supported FHIR versions/IGs, TEFCA participation details, au
 
 Several recommendations within this document are particularly pertinent for major technology and cloud platform vendors (such as Microsoft, Google, AWS) to consider supporting, as they align with fostering a robust, innovative, and scalable digital health ecosystem. Publicly supporting these could accelerate progress in critical areas:
 
-1.  **[Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonuat):**
+1.  **[Mandate API-Accessible, Computable Full EHI Export, Aligning with Industry Specifications](#req_api_ehi_export_argonaut):**
     *   **Relevance:** Foundational for enabling advanced analytics, AI/ML applications, and patient-centric tools that rely on comprehensive, computable data. Cloud platforms are ideal for hosting and processing such large-scale EHI.
 2.  **[Steward USCDI Development for Pragmatic Interoperability](#req_steward_uscdi_development):**
     *   **Relevance:** Expanded and well-defined standardized data elements (USCDI) simplify data integration, improve data quality for AI, and reduce the burden on developers building cross-platform solutions.
